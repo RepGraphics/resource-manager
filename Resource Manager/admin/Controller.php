@@ -20,9 +20,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Pterodactyl\Models\Egg;
-use Pterodactyl\Models\User;
-use Pterodactyl\Models\Server;
 
 class resourcemanagerExtensionController extends Controller
 {
@@ -94,22 +91,26 @@ class resourcemanagerExtensionController extends Controller
 
     public function deleteImage(Request $request)
     {
-    if (!$request->user() || !$request->user()->root_admin) {
-        throw new AccessDeniedHttpException();
-    }
-
-    $request->validate([
-        'filename' => 'required|string',
-    ]);
-
-    $path = public_path('extensions/resourcemanager/uploads/' . $request->input('filename'));
-
-    if (file_exists($path)) {
-        unlink($path);
-        return response()->json(['success' => true, 'message' => 'Image deleted successfully.']);
-    }
-
-    return response()->json(['success' => false, 'message' => 'File not found.'], 404);
+        if (!$request->user() || !$request->user()->root_admin) {
+            throw new AccessDeniedHttpException();
+        }
+    
+        $request->validate([
+            'filename' => 'required|string',
+        ]);
+    
+        $uploadsDir = public_path('extensions/resourcemanager/uploads');
+    
+        $filename = basename($request->input('filename'));
+    
+        $filePath = $uploadsDir . DIRECTORY_SEPARATOR . $filename;
+    
+        if (file_exists($filePath) && strpos(realpath($filePath), realpath($uploadsDir)) === 0) {
+            unlink($filePath);
+            return response()->json(['success' => true, 'message' => 'Image deleted successfully.']);
+        }
+    
+        return response()->json(['success' => false, 'message' => 'File not found or invalid.'], 404);
     }
 
 }
