@@ -52,7 +52,7 @@ class resourcemanagerExtensionController extends Controller
     }
 
     $request->validate([
-        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480', // Validate image file
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:20480', // Validate image file
     ]);
 
     $file = $request->file('image');
